@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lucas Borges Flores — Dev</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #080c10;
+      --bg2: #0d1117;
+      --surface: #111820;
+      --border: #1e2d3d;
+      --neon: #00e5ff;
+      --neon2: #00ffa3;
+      --accent: #ff4d6d;
+      --text: #c9d1d9;
+      --muted: #58677a;
+      --white: #f0f6fc;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Sora', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* Custom cursor */
+    .cursor {
+      position: fixed;
+      width: 10px; height: 10px;
+      background: var(--neon);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s ease, opacity 0.2s;
+      box-shadow: 0 0 12px var(--neon);
+    }
+    .cursor-ring {
+      position: fixed;
+      width: 36px; height: 36px;
+      border: 1px solid rgba(0,229,255,0.35);
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.18s ease, width 0.2s, height 0.2s, border-color 0.2s;
+    }
+
+    /* Grid background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* NAV */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.2rem 5%;
+      border-bottom: 1px solid transparent;
+      transition: border-color 0.4s, background 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(8,12,16,0.85);
+      backdrop-filter: blur(12px);
+      border-color: var(--border);
+    }
+    .nav-logo {
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--neon);
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+    }
+    .nav-links { display: flex; gap: 2rem; list-style: none; }
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.85rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+      position: relative;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      bottom: -3px; left: 0;
+      width: 0; height: 1px;
+      background: var(--neon);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { color: var(--neon); }
+    .nav-links a:hover::after { width: 100%; }
+
+    /* SECTIONS */
+    section { position: relative; z-index: 1; }
+
+    /* HERO */
+    #hero {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 0 5%;
+      padding-top: 80px;
+    }
+    .hero-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.8rem;
+      color: var(--neon);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1.2rem;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.2s;
+    }
+    .hero-name {
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 700;
+      color: var(--white);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.4s;
+    }
+    .hero-name span {
+      color: transparent;
+      -webkit-text-stroke: 1.5px var(--neon);
+    }
+    .hero-sub {
+      margin-top: 1.5rem;
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 480px;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.6s;
+    }
+    .hero-cta {
+      margin-top: 2.5rem;
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 0.8s;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.6rem;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .btn-primary {
+      background: var(--neon);
+      color: #000;
+      box-shadow: 0 0 20px rgba(0,229,255,0.25);
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 32px rgba(0,229,255,0.45);
+    }
+    .btn-outline {
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-outline:hover {
+      border-color: var(--neon);
+      color: var(--neon);
+      transform: translateY(-2px);
+    }
+
+    .hero-scroll {
+      position: absolute;
+      bottom: 2.5rem;
+      left: 5%;
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.7rem;
+      color: var(--muted);
+      letter-spacing: 0.15em;
+      opacity: 0;
+      animation: fadeUp 0.7s ease forwards 1.2s;
+    }
+    .scroll-line {
+      width: 40px; height: 1px;
+      background: linear-gradient(90deg, var(--neon), transparent);
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    /* ABOUT */
+    #about {
+      padding: 7rem 5%;
+    }
+    .section-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--neon);
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      margin-bottom: 0.8rem;
+    }
+    .section-title {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      color: var(--white);
+      letter-spacing: -0.02em;
+      margin-bottom: 2.5rem;
+    }
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 4rem;
+      align-items: start;
+    }
+    .about-text p {
+      color: var(--muted);
+      font-weight: 300;
+      margin-bottom: 1rem;
+      line-height: 1.8;
+    }
+    .about-text p strong { color: var(--text); font-weight: 600; }
+
+    .skills-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+    .skill-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .skill-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.8rem;
+      font-family: 'Share Tech Mono', monospace;
+      color: var(--text);
+    }
+    .skill-bar {
+      height: 3px;
+      background: var(--border);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .skill-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--neon), var(--neon2));
+      width: 0;
+      transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* PROJECT */
+    #project {
+      padding: 7rem 5%;
+      background: linear-gradient(180deg, transparent, rgba(13,17,23,0.6), transparent);
+    }
+    .project-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      transition: border-color 0.3s, box-shadow 0.3s, transform 0.3s;
+      max-width: 900px;
+    }
+    .project-card:hover {
+      border-color: rgba(0,229,255,0.3);
+      box-shadow: 0 0 40px rgba(0,229,255,0.07);
+      transform: translateY(-4px);
+    }
+    .project-header {
+      padding: 2.5rem;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .project-icon {
+      font-size: 2.5rem;
+      margin-bottom: 0.8rem;
+    }
+    .project-name {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 1.4rem;
+      color: var(--white);
+      margin-bottom: 0.3rem;
+    }
+    .project-type {
+      font-size: 0.78rem;
+      color: var(--neon2);
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+    .project-status {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--neon2);
+      background: rgba(0,255,163,0.07);
+      border: 1px solid rgba(0,255,163,0.2);
+      padding: 0.4rem 0.9rem;
+      border-radius: 100px;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      background: var(--neon2);
+      border-radius: 50%;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .project-body { padding: 2.5rem; }
+    .project-desc {
+      color: var(--muted);
+      font-weight: 300;
+      line-height: 1.8;
+      margin-bottom: 2rem;
+      max-width: 620px;
+    }
+    .features-title {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--neon);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .features-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.7rem;
+      margin-bottom: 2rem;
+      list-style: none;
+    }
+    .features-list li {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-size: 0.88rem;
+      color: var(--text);
+    }
+    .features-list li::before {
+      content: '›';
+      color: var(--neon);
+      font-size: 1.1rem;
+      line-height: 1;
+    }
+    .tech-stack {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+    .tech-tag {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 4px;
+      background: rgba(0,229,255,0.06);
+      border: 1px solid rgba(0,229,255,0.15);
+      color: var(--neon);
+      letter-spacing: 0.06em;
+    }
+
+    /* CONTACT */
+    #contact {
+      padding: 7rem 5%;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 2.5rem;
+    }
+    .contact-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 2rem;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+      transition: border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+      cursor: none;
+    }
+    .contact-card:hover {
+      border-color: rgba(0,229,255,0.35);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 30px rgba(0,229,255,0.06);
+    }
+    .contact-icon {
+      font-size: 1.5rem;
+    }
+    .contact-label {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--muted);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+    .contact-value {
+      font-size: 0.9rem;
+      color: var(--white);
+      word-break: break-all;
+    }
+    .contact-arrow {
+      margin-top: auto;
+      color: var(--neon);
+      font-size: 1.2rem;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+    }
+    .contact-card:hover .contact-arrow {
+      opacity: 1;
+      transform: translateX(4px);
+    }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 2rem 5%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    footer span {
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+    footer .neon { color: var(--neon); }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .reveal {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .about-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+      .contact-grid { grid-template-columns: 1fr; }
+      .features-list { grid-template-columns: 1fr; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- NAV -->
+  <nav id="navbar">
+    <div class="nav-logo">&lt;Lucas.dev /&gt;</div>
+    <ul class="nav-links">
+      <li><a href="#about">Sobre</a></li>
+      <li><a href="#project">Projeto</a></li>
+      <li><a href="#contact">Contato</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-tag">// desenvolvedor · bot telegram</div>
+    <h1 class="hero-name">Lucas <span>Borges</span><br>Flores</h1>
+    <p class="hero-sub">Desenvolvedor apaixonado por automação e criação de bots inteligentes que resolvem problemas reais.</p>
+    <div class="hero-cta">
+      <a href="#project" class="btn btn-primary">Ver Projeto</a>
+      <a href="#contact" class="btn btn-outline">Entrar em Contato</a>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      SCROLL DOWN
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="reveal">
+      <div class="section-label">// 01 — sobre mim</div>
+      <h2 class="section-title">Quem sou eu</h2>
+    </div>
+    <div class="about-grid">
+      <div class="about-text reveal">
+        <p>Olá! Sou <strong>Lucas Borges Flores</strong>, desenvolvedor com foco em automação e bots para Telegram. Gosto de transformar ideias em soluções práticas usando Python.</p>
+        <p>Meu interesse em tecnologia me levou a explorar o desenvolvimento de bots, criando experiências interativas que entregam <strong>informação e motivação</strong> de forma automatizada.</p>
+        <p>Atualmente desenvolvo projetos pessoais que combinam APIs, dados em tempo real e experiência do usuário, sempre buscando melhorar minhas habilidades.</p>
+      </div>
+      <div class="skills-grid reveal">
+        <div class="skill-item">
+          <div class="skill-label"><span>Python</span><span>85%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-width="85"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label"><span>Telegram Bot API</span><span>80%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-width="80"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label"><span>Automação</span><span>75%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-width="75"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label"><span>APIs &amp; Integrações</span><span>70%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-width="70"></div></div>
+        </div>
+        <div class="skill-item">
+          <div class="skill-label"><span>Git &amp; GitHub</span><span>72%</span></div>
+          <div class="skill-bar"><div class="skill-fill" data-width="72"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECT -->
+  <section id="project">
+    <div class="reveal">
+      <div class="section-label">// 02 — projeto</div>
+      <h2 class="section-title">Projeto.py</h2>
+    </div>
+    <div class="project-card reveal">
+      <div class="project-header">
+        <div>
+          <div class="project-icon">🤖</div>
+          <div class="project-name">Projeto.py</div>
+          <div class="project-type">Bot Telegram · Python</div>
+        </div>
+        <div class="project-status">
+          <div class="status-dot"></div>
+          ATIVO
+        </div>
+      </div>
+      <div class="project-body">
+        <p class="project-desc">
+          Bot para Telegram desenvolvido em Python que combina curiosidades atuais sobre a Copa do Mundo com mensagens motivacionais personalizadas. Uma experiência interativa que mantém o usuário engajado, informado e motivado diretamente no chat.
+        </p>
+        <div class="features-title">// funcionalidades</div>
+        <ul class="features-list">
+          <li>Curiosidades da Copa atual</li>
+          <li>Mensagens motivacionais</li>
+          <li>Interação via Telegram</li>
+          <li>Respostas automáticas</li>
+          <li>Conteúdo dinâmico</li>
+          <li>Interface conversacional</li>
+        </ul>
+        <div class="features-title">// tecnologias</div>
+        <div class="tech-stack">
+          <span class="tech-tag">Python</span>
+          <span class="tech-tag">python-telegram-bot</span>
+          <span class="tech-tag">Telegram Bot API</span>
+          <span class="tech-tag">Automação</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="reveal">
+      <div class="section-label">// 03 — contato</div>
+      <h2 class="section-title">Vamos conversar</h2>
+    </div>
+    <div class="contact-grid">
+      <a href="https://github.com/DeyMyLuc" target="_blank" class="contact-card reveal">
+        <div class="contact-icon">🐙</div>
+        <div class="contact-label">GitHub</div>
+        <div class="contact-value">github.com/DeyMyLuc</div>
+        <div class="contact-arrow">→</div>
+      </a>
+      <a href="https://www.linkedin.com/in/lucas-borges-flores-a435a8182" target="_blank" class="contact-card reveal">
+        <div class="contact-icon">💼</div>
+        <div class="contact-label">LinkedIn</div>
+        <div class="contact-value">Lucas Borges Flores</div>
+        <div class="contact-arrow">→</div>
+      </a>
+      <a href="mailto:Lucasbyeager@outlook.com" class="contact-card reveal">
+        <div class="contact-icon">✉️</div>
+        <div class="contact-label">Email</div>
+        <div class="contact-value">Lucasbyeager@outlook.com</div>
+        <div class="contact-arrow">→</div>
+      </a>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <span>© 2026 <span class="neon">Lucas Borges Flores</span></span>
+    <span>// feito com Python &amp; café ☕</span>
+  </footer>
+
+  <script>
+    // Custom cursor
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px';
+      cursor.style.top  = my + 'px';
+    });
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    // Nav scroll
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 40);
+    });
+
+    // Reveal on scroll
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach((entry, i) => {
+        if (entry.isIntersecting) {
+          entry.target.style.transitionDelay = (i * 0.05) + 's';
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // Skill bars
+    const skillObserver = new IntersectionObserver(entries => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.skill-fill').forEach(bar => {
+            bar.style.width = bar.dataset.width + '%';
+          });
+        }
+      });
+    }, { threshold: 0.3 });
+    document.querySelectorAll('.skills-grid').forEach(el => skillObserver.observe(el));
+  </script>
+</body>
+</html>
